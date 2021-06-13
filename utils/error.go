@@ -48,6 +48,7 @@ var messages = []errorMessage{
 type Error struct {
 	Code       string `json:"code,omitempty"`
 	Message    string `json:"message,omitempty"`
+	ErrorCause string `json:"error,omitempty"`
 	StatusCode int    `json:"status_code,omitempty"`
 }
 
@@ -68,7 +69,42 @@ func SetError(code ErrorStatus, err error, fields ...string) *Error {
 		}
 	}
 	return &Error{
-		Message: msg.message,
-		Code:    fmt.Sprintf("%03d", code),
+		StatusCode: msg.code,
+		Message:    msg.message,
+		Code:       fmt.Sprintf("%03d", code),
+		ErrorCause: err.Error(),
 	}
+}
+
+// SetCustomError creates error object
+func SetCustomError(statusCode ErrorStatus, err error, extraData map[string]interface{}) *Error {
+	codeMsg := ""
+
+	if err == nil {
+		return nil
+	}
+
+	if int(statusCode) > len(messages) {
+		statusCode = InternalError
+	}
+
+	msg := messages[statusCode]
+
+	errorCode, errCodeExist := extraData["error_code"]
+
+	if errCodeExist && errorCode != nil {
+		switch errorCode.(type) {
+		case string:
+			codeMsg = errorCode.(string)
+		}
+	}
+
+	customError := &Error{
+		StatusCode: msg.code,
+		Message:    msg.message,
+		Code:       codeMsg,
+		ErrorCause: err.Error(),
+	}
+
+	return customError
 }

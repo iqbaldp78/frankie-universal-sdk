@@ -1,7 +1,7 @@
 package initialize
 
 import (
-	"frankie/universal/sdk/validation"
+	"frankie/universal/sdk/controllers"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,8 +18,8 @@ func setBlueprintApp(router *gin.Engine) {
 	// 	})
 	// })
 
-	validation := validation.NewValidation()
-	router.POST("/isgood", validation.Validate)
+	ctrl := controllers.NewValidation()
+	router.POST("/isgood", ctrl.Validate)
 
 }
 
